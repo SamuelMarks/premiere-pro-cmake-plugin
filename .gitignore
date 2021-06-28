@@ -1,0 +1,7 @@
+.idea
+cmake-build-*
+build
+bin
+.DS_Store
+Testing
+.secrets

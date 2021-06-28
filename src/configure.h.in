@@ -1,0 +1,12 @@
+#ifndef PP_PLUGIN_CONFIG_H
+#define PP_PLUGIN_CONFIG_H
+
+#define PROJECT_NAME "@PROJECT_NAME@"
+#define PROJECT_VERSION "@pp_VERSION@"
+
+#define _@TARGET_ARCH@_
+
+/* https://github.com/abseil/abseil-cpp/pull/705 until merge */
+#define _SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING
+
+#endif /* PP_PLUGIN_H */
