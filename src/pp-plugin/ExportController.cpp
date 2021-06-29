@@ -19,21 +19,13 @@
 /*                                                                 */
 /*******************************************************************/
 
-#include <zlib.h>
 #include "ExportController.h"
+#include "../versions/versions.h"
 
 static PrSDKExportControllerSuite	*sExportControllerSuitePtr = NULL;
 static PrSDKErrorSuite3				*sErrorSuitePtr = NULL;
 static PrSDKSequenceInfoSuite		*sSequenceInfoSuitePtr = NULL;
 static PrSDKTimeSuite				*sTimeSuitePtr = NULL;
-
-prUTF16Char * to_wchar(const char* message) {
-    const size_t cSize = strlen(message);
-    wchar_t *w_str = new wchar_t[cSize];
-    size_t outSize;
-    mbstowcs_s(&outSize, w_str, cSize, message, cSize-1);
-    return w_str;
-}
 
 DllExport PREMPLUGENTRY xExportControllerEntry (
         int				selector,
@@ -151,11 +143,10 @@ prMALError ecExportTimeline(
         }
         else
         {
-            std::wstring errorTitle(L"ZLIB_VERSION");
-            std::wstring errorDesc(to_wchar(ZLIB_VERSION));
-            sErrorSuitePtr->SetEventStringUnicode(	PrSDKErrorSuite3::kEventTypeError,
-                                                      reinterpret_cast<prUTF16Char*>(const_cast<wchar_t*>(errorTitle.c_str())),
-                                                      reinterpret_cast<prUTF16Char*>(const_cast<wchar_t*>(errorDesc.c_str())));
+            for(unsigned i=0; i<sizeof VERSIONS/sizeof VERSIONS[0]; i++)
+                log_info_w(VERSIONS[i][0]),
+                log_info_w(VERSIONS[i][1]);
+
             result = eExportControllerErrorReportedInSuite;
         }
     }

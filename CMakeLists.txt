@@ -24,6 +24,10 @@ if (NOT DEFINED TARGET_ARCH)
     set(TARGET_ARCH ${CMAKE_HOST_SYSTEM_PROCESSOR})
 endif ()
 
+if (NOT DEFINED PLUGIN_MODE AND NOT DEFINED STANDALONE_MODE)
+    set(PLUGIN_MODE 1)
+endif ()
+
 ################################
 # Configure file (interpolate) #
 ################################
@@ -81,11 +85,24 @@ include_directories("${CMAKE_BINARY_DIR}/configure")
 ###########################
 include(GenerateExportHeader)
 
-set(PROJ_NAME "pp-plugin")
-add_subdirectory("src/${PROJ_NAME}")
-set_target_properties(
-        "${PROJ_NAME}" PROPERTIES SUFFIX ".prm"
-)
+set(PP_LIBRARIES "common" "versions")
+set(PP_INCLUDE_DIRS "")
+foreach (_lib ${PP_LIBRARIES})
+    add_subdirectory("src/${_lib}")
+    list(APPEND PP_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/src/${_lib}")
+    message(STATUS "Built ${_lib} at ${CMAKE_CURRENT_BINARY_DIR}")
+endforeach ()
+
+if (DEFINED STANDALONE_MODE AND STANDALONE_MODE EQUAL 1)
+    set(PROJ_NAME "standalone")
+    add_subdirectory("src/${PROJ_NAME}")
+else ()
+    set(PROJ_NAME "pp-plugin")
+    add_subdirectory("src/${PROJ_NAME}")
+    set_target_properties(
+            "${PROJ_NAME}" PROPERTIES SUFFIX ".prm"
+    )
+endif()
 
 if (MSVC)
     set_property (DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}" PROPERTY VS_STARTUP_PROJECT "${PROJ_NAME}")

@@ -7,10 +7,8 @@ string(TOUPPER "${LIBRARY_NAME}" LIBRARY_UPPER_NAME)
 ######################
 
 set(PP_EXE "" CACHE PATH "Location of Premiere Pro program")
-if (NOT DEFINED PP_EXE OR PP_EXE STREQUAL "")
-    if (MSVC)
-        set(PP_EXE "$ENV{ProgramFiles}\\Adobe\\Adobe Premiere Pro 2021\\Adobe Premiere Pro.exe")
-    endif ()
+if ((NOT DEFINED PP_EXE OR PP_EXE STREQUAL "") AND MSVC)
+    set(PP_EXE "$ENV{ProgramFiles}\\Adobe\\Adobe Premiere Pro 2021\\Adobe Premiere Pro.exe")
 endif()
 
 set(ADOBE_PP_SDK "Premiere Pro CC 13.0 Mac SDK" CACHE PATH "Location of Premiere Pro SDK")
@@ -118,15 +116,21 @@ endif ()
 find_package(ZLIB REQUIRED)
 list(APPEND _libs "ZLIB::ZLIB")
 
+find_package(OpenSSL REQUIRED)
+list(APPEND _libs "OpenSSL::SSL")
+list(APPEND _libs "OpenSSL::Crypto")
+
 target_include_directories(
         "${LIBRARY_NAME}"
         PUBLIC
         "${_include_dirs}"
 )
+
 target_link_libraries(
         "${LIBRARY_NAME}"
         PUBLIC
         "${_libs}"
+        "${PP_LIBRARIES}"
 )
 
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Out")

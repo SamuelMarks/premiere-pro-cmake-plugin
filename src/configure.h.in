@@ -4,6 +4,9 @@
 #define PROJECT_NAME "@PROJECT_NAME@"
 #define PROJECT_VERSION "@pp_VERSION@"
 
+#cmakedefine PLUGIN_MODE @PLUGIN_MODE@
+#cmakedefine STANDALONE_MODE @STANDALONE_MODE@
+
 #define _@TARGET_ARCH@_
 
 /* https://github.com/abseil/abseil-cpp/pull/705 until merge */
