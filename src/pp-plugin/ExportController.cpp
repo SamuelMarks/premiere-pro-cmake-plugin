@@ -92,6 +92,7 @@ prMALError ecExportTimeline(
         ecStdParms *stdParms,
         ExportControllerTimelineInfoRec *timelineInfo)
 {
+    set_error_suite_ptr(sErrorSuitePtr);
     prMALError result = malNoError;
     prRect			frameRect;
     csSDK_uint32	PARNumerator, PARDenominator;
@@ -147,9 +148,16 @@ prMALError ecExportTimeline(
                 log_info_w(VERSIONS[i][0]),
                 log_info_w(VERSIONS[i][1]);
 
+            sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
+                                                  const_cast<prUTF16Char *>(L"ExportController.cpp"),
+                                                  const_cast<prUTF16Char *>(L"ExportController.cpp")
+            );
+
             result = eExportControllerErrorReportedInSuite;
         }
     }
+
+    cleanup_error_suite_ptr();
 
     return result;
 }
