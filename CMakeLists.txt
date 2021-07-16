@@ -13,6 +13,10 @@ endif ()
 # Compiler flags #
 ##################
 
+set(CMAKE_C_VISIBILITY_PRESET hidden)
+set(CMAKE_CXX_VISIBILITY_PRESET hidden)
+set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
+
 add_library("${PROJECT_LOWER_NAME}_compiler_flags" INTERFACE)
 target_compile_features("${PROJECT_LOWER_NAME}_compiler_flags" INTERFACE "cxx_std_11")
 
@@ -48,6 +52,13 @@ if (NOT DEFINED PLUGIN_MODE AND NOT DEFINED STANDALONE_MODE)
     set(PLUGIN_MODE 1)
 endif ()
 
+# Instead of `BUILD_SHARED_LIBS`
+if(PLUGIN_MODE)
+    set(LIBRARY_TYPE_FLAG "STATIC")
+else ()
+    set(LIBRARY_TYPE_FLAG "SHARED")
+endif()
+
 ################################
 # Configure file (interpolate) #
 ################################
@@ -71,6 +82,12 @@ endif()
 if(NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
     set(PREMSDKBUILDPATH "$ENV{PREMSDKBUILDPATH}")
 endif()
+
+# control where the static and shared libraries are built so that on windows
+# we don't need to tinker with the path to run the executable
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 
 #    # First for the generic no-config case (e.g. with mingw)
 #    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "$ENV{PREMSDKBUILDPATH}" )
@@ -135,43 +152,46 @@ endif ()
 #####################################
 # Compiler, library, and exec flags #
 #####################################
-if (MSVC)
-    add_compile_options(
-            /WX
-            /permissive-
-            /Oi
-            /Ob0  # Disable in release (at some future point)
-            /GL
-            /Gy
-            /FC
-            "$<$<CONFIG:DEBUG>:-/MDd>"
-            "$<$<CONFIG:RELEASE>:-/MD>"
-    )
-    add_link_options(
-            /LTCG
-            /Zi
-    )
-    add_compile_definitions(
-            _WINDLL
-    )
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB")
-else ()
-    add_compile_options(
-            "$<$<CONFIG:DEBUG>:-Wall;-Werror;-pedantic;-Wno-missing-braces>"
-            "$<$<CONFIG:RELEASE>:-O3>"
-    )
 
-    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
-        add_compile_options("$<$<CONFIG:DEBUG>:-pedantic>")
-    else ()
-        add_compile_options("$<$<CONFIG:DEBUG>:-Wpedantic>")
-    endif ()
-
-    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-        set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
-    endif()
-endif ()
+# Most of these are reverse-engineered from Premiere Pro
+#
+#if (MSVC)
+#    add_compile_options(
+#            /WX
+#            /permissive-
+#            /Oi
+#            /Ob0  # Disable in release (at some future point)
+#            /GL
+#            /Gy
+#            /FC
+#            "$<$<CONFIG:DEBUG>:-/MDd>"
+#            "$<$<CONFIG:RELEASE>:-/MD>"
+#    )
+#    add_link_options(
+#            /LTCG
+#            /Zi
+#    )
+#    add_compile_definitions(
+#            _WINDLL
+#    )
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB")
+#else ()
+#    add_compile_options(
+#            "$<$<CONFIG:DEBUG>:-Wall;-Werror;-pedantic;-Wno-missing-braces>"
+#            "$<$<CONFIG:RELEASE>:-O3>"
+#    )
+#
+#    if (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+#        add_compile_options("$<$<CONFIG:DEBUG>:-pedantic>")
+#    else ()
+#        add_compile_options("$<$<CONFIG:DEBUG>:-Wpedantic>")
+#    endif ()
+#
+#    if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang" OR CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+#        set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+#        set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
+#    endif()
+#endif ()
 
 ###################################
 # Installer configuration (CPack) #

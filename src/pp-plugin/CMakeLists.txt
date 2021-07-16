@@ -125,13 +125,20 @@ target_include_directories(
         PUBLIC
         "${_include_dirs}"
 )
+message(STATUS "${LIBRARY_NAME}" _include_dirs = ${_include_dirs})
 
 target_link_libraries(
         "${LIBRARY_NAME}"
-        PUBLIC
+        LINK_PUBLIC
         "${_libs}"
         "${PP_LIBRARIES}"
 )
+foreach (_lib ${PP_LIBRARIES})
+    message("${LIBRARY_NAME} _lib = ${_lib}")
+    #target_link_libraries("${LIBRARY_NAME}" "${_lib}")
+    #target_link_libraries("${LIBRARY_NAME}" PUBLIC "${_lib}")
+    #target_link_libraries("${LIBRARY_NAME}" SHARED "${_lib}")
+endforeach()
 message(STATUS "target_link_libraries "
         "${LIBRARY_NAME}"
         " _libs = "
@@ -146,32 +153,37 @@ if (MSVC)
             "${LIBRARY_NAME}" PROPERTIES
             VS_DEBUGGER_COMMAND "${PP_EXE}"
     )
-    set_target_properties("${LIBRARY_NAME}" PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-        target_link_options(${LIBRARY_NAME} PRIVATE
-                $<$<CONFIG:Debug>:
-                /DEBUG
-                >
-                $<$<CONFIG:Release>:
-                /DEBUG:FULL;
-                /OPT:REF;
-                /OPT:ICF
-                >
-                /MACHINE:X64
-                )
-    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-        target_link_options(${LIBRARY_NAME} PRIVATE
-                $<$<CONFIG:Debug>:
-                /DEBUG
-                >
-                $<$<CONFIG:Release>:
-                /DEBUG:FULL;
-                /OPT:REF;
-                /OPT:ICF
-                >
-                )
-    endif()
-endif ()
+    set_target_properties("${LIBRARY_NAME}" PROPERTIES LINK_FLAGS /NODEFAULTLIB:\"MSVCRT\")
+endif()
+
+# Mostly reverse-engineered from Premiere Pro sample config:
+#
+#    set_target_properties("${LIBRARY_NAME}" PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+#    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
+#        target_link_options(${LIBRARY_NAME} PRIVATE
+#                $<$<CONFIG:Debug>:
+#                /DEBUG
+#                >
+#                $<$<CONFIG:Release>:
+#                /DEBUG:FULL;
+#                /OPT:REF;
+#                /OPT:ICF
+#                >
+#                /MACHINE:X64
+#                )
+#    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
+#        target_link_options(${LIBRARY_NAME} PRIVATE
+#                $<$<CONFIG:Debug>:
+#                /DEBUG
+#                >
+#                $<$<CONFIG:Release>:
+#                /DEBUG:FULL;
+#                /OPT:REF;
+#                /OPT:ICF
+#                >
+#                )
+#    endif()
+#endif ()
 
 ####################################
 # Shared and static library config #

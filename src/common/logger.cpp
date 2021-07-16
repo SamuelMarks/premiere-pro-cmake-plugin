@@ -1,5 +1,7 @@
+/* Technically in `STANDALONE_MODE` this is a C file */
 #include <cstdlib>
 #include <cstdio>
+#include <cstring>
 #include "../configure/configure.h"
 #include "logger.h"
 

@@ -5,20 +5,9 @@ string(REPLACE " " "_" EXEC_NAME ${EXEC_NAME})
 # Create target #
 #################
 
-# find_package(google_cloud_cpp_common CONFIG REQUIRED)
-
 add_executable("${EXEC_NAME}" "main.c")
-#target_include_directories(
-#        "${PROJECT_NAME}"
-#        PRIVATE
-#)
-target_link_libraries("${EXEC_NAME}" LINK_PUBLIC "common" "versions")
 
-#if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
-#    list(APPEND _LIBRARIES Shlwapi)
-#endif ()
-
-# target_link_libraries("${PROJECT_NAME}" PRIVATE "${_LIBRARIES}")
+target_link_libraries("${EXEC_NAME}" LINK_PUBLIC "${PP_LIBRARIES}")
 
 if (MSVC)
     set_target_properties("${PROJ_NAME}" PROPERTIES LINK_FLAGS /NODEFAULTLIB:\"MSVCRT\")

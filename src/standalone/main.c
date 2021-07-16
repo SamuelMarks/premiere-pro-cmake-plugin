@@ -1,10 +1,11 @@
 #include <stdlib.h>
 
-#include "../common/logger.h"
-#include "../versions/logger.h"
+#include <logger.h>
+#include <versions.h>
 
 int main(void) {
-    for(unsigned i=0; i<sizeof VERSIONS/sizeof VERSIONS[0]; i++)
+    size_t i;
+    for(i=0; i<VERSIONS_N; i++)
         log_info_w(VERSIONS[i][0]),
         log_info_w(VERSIONS[i][1]);
     return EXIT_SUCCESS;

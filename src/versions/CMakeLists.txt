@@ -4,7 +4,8 @@ string(REPLACE " " "_" LIBRARY_NAME "${LIBRARY_NAME}")
 include(GenerateExportHeader)
 
 # add the library that runs
-add_library("${LIBRARY_NAME}" "versions.c")
+message(STATUS LIBRARY_TYPE_FLAG = ${LIBRARY_TYPE_FLAG})
+add_library("${LIBRARY_NAME}" "${LIBRARY_TYPE_FLAG}" "versions.c")
 
 set(_libs "")
 
@@ -72,4 +73,4 @@ endif ()
 install(TARGETS ${installable_libs}
         DESTINATION "bin"
         EXPORT "${LIBRARY_NAME}Targets")
-install(FILES "${_export_file}" "logger.h" DESTINATION "include")
+install(FILES "${_export_file}" "versions.h" DESTINATION "include")

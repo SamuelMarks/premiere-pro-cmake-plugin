@@ -10,10 +10,8 @@ if (NOT DEFINED STANDALONE_MODE OR NOT STANDALONE_MODE EQUAL 1)
   set(_pp_headers "${ADOBE_PP_SDK}/Examples/Headers")
 endif()
 source_group("Header Files" FILES "${Header_Files}")
-add_library("${LIBRARY_NAME}" SHARED "${Header_Files}" "logger.cpp")
-#add_library("${LIBRARY_NAME}" "logger.cpp")
+add_library("${LIBRARY_NAME}" "${LIBRARY_TYPE_FLAG}" "${Header_Files}" "logger.cpp")
 
-message(_pp_headers = ${_pp_headers})
 target_include_directories(
         "${LIBRARY_NAME}"
         INTERFACE

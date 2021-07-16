@@ -1,5 +1,5 @@
 #include <rexo.h>
-#include "logger.h"
+#include "versions.h"
 
 RX_TEST_CASE(versions, size) {
     RX_UINT_REQUIRE_EQUAL(VERSIONS_N, 2);
