@@ -54,9 +54,9 @@ endif ()
 
 # Instead of `BUILD_SHARED_LIBS`
 if(PLUGIN_MODE)
-    set(LIBRARY_TYPE_FLAG "STATIC")
-else ()
     set(LIBRARY_TYPE_FLAG "SHARED")
+else ()
+    set(LIBRARY_TYPE_FLAG "STATIC")
 endif()
 
 ################################
@@ -130,15 +130,13 @@ foreach (_lib ${PP_LIBRARIES})
     message(STATUS "Built ${_lib} at ${CMAKE_CURRENT_BINARY_DIR}")
 endforeach ()
 
-if (DEFINED STANDALONE_MODE AND STANDALONE_MODE EQUAL 1)
-    set(PROJ_NAME "standalone")
-    add_subdirectory("src/${PROJ_NAME}")
-else ()
+if (PLUGIN_MODE)
     set(PROJ_NAME "pp-plugin")
     add_subdirectory("src/${PROJ_NAME}")
-    set_target_properties(
-            "${PROJ_NAME}" PROPERTIES SUFFIX ".prm"
-    )
+    set_target_properties("${PROJ_NAME}" PROPERTIES SUFFIX ".prm")
+else ()
+    set(PROJ_NAME "standalone")
+    add_subdirectory("src/${PROJ_NAME}")
 endif()
 
 if (MSVC)

@@ -4,7 +4,7 @@ string(REPLACE " " "_" LIBRARY_NAME "${LIBRARY_NAME}")
 include(GenerateExportHeader)
 
 set(Header_Files "logger.h")
-if (NOT DEFINED STANDALONE_MODE OR NOT STANDALONE_MODE EQUAL 1)
+if (PLUGIN_MODE)
   list(APPEND "${ADOBE_PP_SDK}/Examples/Headers/PrSDKErrorSuite.h")
   list(APPEND "${ADOBE_PP_SDK}/Examples/Headers/PrSDKTypes.h")
   set(_pp_headers "${ADOBE_PP_SDK}/Examples/Headers")
