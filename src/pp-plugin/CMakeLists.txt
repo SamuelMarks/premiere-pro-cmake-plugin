@@ -132,6 +132,12 @@ target_link_libraries(
         "${_libs}"
         "${PP_LIBRARIES}"
 )
+message(STATUS "target_link_libraries "
+        "${LIBRARY_NAME}"
+        " _libs = "
+        ${_libs} " PP_LIBRARIES = "
+        ${PP_LIBRARIES}
+        )
 
 #set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Out")
 
@@ -171,6 +177,26 @@ endif ()
 # Shared and static library config #
 ####################################
 
-generate_export_header("${LIBRARY_NAME}" BASE_NAME "lib${LIBRARY_NAME}_and_static")
-set_target_properties("${LIBRARY_NAME}" PROPERTIES
-        COMPILE_FLAGS "-DLIB${LIBRARY_UPPER_NAME}SHARED_AND_STATIC_STATIC_DEFINE")
+set(_export_file "${CMAKE_CURRENT_SOURCE_DIR}/${LIBRARY_NAME}_export.h")
+generate_export_header("${LIBRARY_NAME}" EXPORT_FILE_NAME "${_export_file}")
+
+# setup the version numbering
+set_property(TARGET "${LIBRARY_NAME}" PROPERTY VERSION "1.0.0")
+set_property(TARGET "${LIBRARY_NAME}" PROPERTY SOVERSION "1")
+
+###########
+# Install #
+###########
+
+# install rules
+set(installable_libs "${LIBRARY_NAME}" "${PROJECT_LOWER_NAME}_compiler_flags")
+foreach (_lib ${PP_LIBRARIES})
+    if (TARGET "${DEPENDANT_LIBRARY}")
+        list(APPEND installable_libs "${_lib}")
+    endif ()
+endforeach ()
+
+install(TARGETS ${installable_libs}
+        DESTINATION "bin"
+        EXPORT "${LIBRARY_NAME}Targets")
+install(FILES "${_export_file}" "${Header_Files}" DESTINATION "include")

@@ -1,17 +1,15 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <string>
-
+#include <cstdlib>
+#include <cstdio>
 #include "../configure/configure.h"
 #include "logger.h"
 
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
-static const std::wstring PROJECT_NAME_W(WIDEN(PROJECT_NAME));
+static const wchar_t* PROJECT_NAME_W = WIDEN(PROJECT_NAME);
 
 
 #ifdef PLUGIN_MODE
-static prUTF16Char* PROJECT_NAME_UTF16 = const_cast<prUTF16Char *>(PROJECT_NAME_W.c_str());
+static prUTF16Char* PROJECT_NAME_UTF16 = const_cast<prUTF16Char *>(PROJECT_NAME_W);
 
 static PrSDKErrorSuite3				*sErrorSuitePtr = NULL;
 

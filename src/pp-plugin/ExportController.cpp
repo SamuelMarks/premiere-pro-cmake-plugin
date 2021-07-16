@@ -20,7 +20,8 @@
 /*******************************************************************/
 
 #include "ExportController.h"
-#include "../versions/versions.h"
+#include <versions.h>
+#include <logger.h>
 
 static PrSDKExportControllerSuite	*sExportControllerSuitePtr = NULL;
 static PrSDKErrorSuite3				*sErrorSuitePtr = NULL;
@@ -144,7 +145,7 @@ prMALError ecExportTimeline(
         }
         else
         {
-            for(unsigned i=0; i<sizeof VERSIONS/sizeof VERSIONS[0]; i++)
+            for(unsigned i=0; i<VERSIONS_N; i++)
                 log_info_w(VERSIONS[i][0]),
                 log_info_w(VERSIONS[i][1]);
 

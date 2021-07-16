@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 #include "../common/logger.h"
-#include "../versions/versions.h"
+#include "../versions/logger.h"
 
 int main(void) {
     for(unsigned i=0; i<sizeof VERSIONS/sizeof VERSIONS[0]; i++)

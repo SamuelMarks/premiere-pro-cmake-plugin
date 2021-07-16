@@ -1,12 +1,32 @@
 cmake_minimum_required(VERSION 3.13)
 cmake_policy(SET CMP0048 NEW)
 project(pp VERSION 0.0.0 LANGUAGES C CXX)
+string(TOLOWER "${PROJECT_NAME}" PROJECT_LOWER_NAME)
 
 if (MSVC)
     set(CMAKE_CXX_STANDARD 11)
 else ()
     set(CMAKE_CXX_STANDARD 17)
 endif ()
+
+##################
+# Compiler flags #
+##################
+
+add_library("${PROJECT_LOWER_NAME}_compiler_flags" INTERFACE)
+target_compile_features("${PROJECT_LOWER_NAME}_compiler_flags" INTERFACE "cxx_std_11")
+
+# add compiler warning flags just when building this project via
+# the BUILD_INTERFACE genex
+set(gcc_like "$<COMPILE_LANG_AND_ID:C,CXX,ARMClang,AppleClang,Clang,GNU>")
+set(msvc "$<COMPILE_LANG_AND_ID:C,CXX,MSVC>")
+# -g -fsanitize=address -fno-omit-frame-pointer
+target_compile_options(
+        "${PROJECT_LOWER_NAME}_compiler_flags"
+        INTERFACE
+        "$<${gcc_like}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
+        "$<${msvc}:$<BUILD_INTERFACE:-W3;-WX;-Zi;-permissive->>"
+)
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
@@ -137,10 +157,7 @@ if (MSVC)
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /NODEFAULTLIB")
 else ()
     add_compile_options(
-            "$<$<CONFIG:DEBUG>:-Wall>"
-            "$<$<CONFIG:DEBUG>:-Werror>"
-            "$<$<CONFIG:DEBUG>:-pedantic>"
-            "$<$<CONFIG:DEBUG>:-Wno-missing-braces>"
+            "$<$<CONFIG:DEBUG>:-Wall;-Werror;-pedantic;-Wno-missing-braces>"
             "$<$<CONFIG:RELEASE>:-O3>"
     )
 
@@ -155,3 +172,62 @@ else ()
         set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
     endif()
 endif ()
+
+###################################
+# Installer configuration (CPack) #
+###################################
+
+## add the install targets
+#install(
+#        TARGETS "${PROJECT_NAME}"
+#        DESTINATION "bin"
+#)
+#install(
+#        FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.h"
+#        DESTINATION "include"
+#)
+#
+#include(InstallRequiredSystemLibraries)
+#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
+#set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
+#set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
+#include(CPack)
+#
+## install the configuration targets
+#install(
+#        EXPORT "${LIBRARY_NAME_0}Targets"
+#        FILE "${LIBRARY_NAME_0}Targets.cmake"
+#        DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
+#)
+#
+#include(CMakePackageConfigHelpers)
+#
+## generate the config file that is includes the exports
+#configure_package_config_file(
+#        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+#        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
+#        INSTALL_DESTINATION "lib/cmake/example"
+#        NO_SET_AND_CHECK_MACRO
+#        NO_CHECK_REQUIRED_COMPONENTS_MACRO
+#)
+#
+## generate the version file for the config file
+#write_basic_package_version_file(
+#        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}ConfigVersion.cmake"
+#        VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}"
+#        COMPATIBILITY AnyNewerVersion
+#)
+#
+## install the configuration file
+#install(
+#        FILES
+#        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
+#        DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
+#)
+#
+## generate the export targets for the build tree
+## needs to be after the install(TARGETS ) command
+#export(
+#        EXPORT "${LIBRARY_NAME_0}Targets"
+#        FILE "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Targets.cmake"
+#)

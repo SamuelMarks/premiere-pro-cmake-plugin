@@ -1,28 +1,12 @@
 get_filename_component(LIBRARY_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 string(REPLACE " " "_" LIBRARY_NAME "${LIBRARY_NAME}")
-string(TOUPPER "${LIBRARY_NAME}" LIBRARY_UPPER_NAME)
 
-######################
-# Library definition #
-######################
+include(GenerateExportHeader)
 
-# header only
-add_library(
-        "${LIBRARY_NAME}"
-        "${LIBRARY_TYPE_FLAG}"
-        "versions.c"
-        #"logger.cpp"
-        #INTERFACE
-)
+# add the library that runs
+add_library("${LIBRARY_NAME}" "versions.c")
 
-set(_include "${CMAKE_CURRENT_SOURCE_DIR}")
 set(_libs "")
-
-generate_export_header("${LIBRARY_NAME}" BASE_NAME "lib${LIBRARY_NAME}_and_static")
-set_target_properties("${LIBRARY_NAME}" PROPERTIES
-        COMPILE_FLAGS "-DLIB${LIBRARY_UPPER_NAME}SHARED_AND_STATIC_STATIC_DEFINE")
-
-list(APPEND _include "${CMAKE_CURRENT_BINARY_DIR}")
 
 find_package(ZLIB REQUIRED)
 list(APPEND _libs "ZLIB::ZLIB")
@@ -31,17 +15,20 @@ find_package(OpenSSL REQUIRED)
 list(APPEND _libs "OpenSSL::SSL")
 list(APPEND _libs "OpenSSL::Crypto")
 
-target_include_directories (
-        "${LIBRARY_NAME}"
-        PUBLIC
-        "${_include}"
-)
-
 target_link_libraries(
         "${LIBRARY_NAME}"
         PUBLIC
         "${_libs}"
 )
+
+target_include_directories(
+        "${LIBRARY_NAME}"
+        INTERFACE
+        "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>"
+        "$<INSTALL_INTERFACE:include>"
+)
+
+target_link_libraries("${LIBRARY_NAME}" PUBLIC "${PROJECT_LOWER_NAME}_compiler_flags")
 
 set_target_properties(
         "${LIBRARY_NAME}"
@@ -50,10 +37,39 @@ set_target_properties(
         C
 )
 
-#####################################################################
-# Set flags to overcome C++ exception handling issues for C interop #
-#####################################################################
+set(_export_file "${CMAKE_CURRENT_SOURCE_DIR}/${LIBRARY_NAME}_export.h")
+generate_export_header("${LIBRARY_NAME}" EXPORT_FILE_NAME "${_export_file}")
 
-if (MSVC)
-    set_target_properties("${LIBRARY_NAME}" PROPERTIES COMPILE_FLAGS "/EHsc")
+# tests
+include(CTest)
+if (BUILD_TESTING)
+  add_executable("${LIBRARY_NAME}Test" "${LIBRARY_NAME}_test.c")
+
+  set(REXO_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/downloaded_headers")
+  file(DOWNLOAD
+          https://raw.githubusercontent.com/christophercrouzet/rexo/91bd377/include/rexo.h
+          "${REXO_INCLUDE_DIRS}/rexo.h"
+       EXPECTED_HASH
+          SHA256=5a425ecb1ff5225781e084d195fd73430b33ceb8c086a6569a9d5fcc4d220ab6)
+  # Remove ^ and uncomment this next line once https://github.com/microsoft/vcpkg/pull/18895 merges
+  # find_path(REXO_INCLUDE_DIRS "rexo.h")
+  target_include_directories("${LIBRARY_NAME}Test" PRIVATE "${REXO_INCLUDE_DIRS}")
+  target_link_libraries("${LIBRARY_NAME}Test" PUBLIC "${_libs}" "${LIBRARY_NAME}")
+
+  add_test(NAME "${LIBRARY_NAME}Test" COMMAND "${LIBRARY_NAME}Test")
+endif (BUILD_TESTING)
+
+
+# setup the version numbering
+set_property(TARGET "${LIBRARY_NAME}" PROPERTY VERSION "1.0.0")
+set_property(TARGET "${LIBRARY_NAME}" PROPERTY SOVERSION "1")
+
+# install rules
+set(installable_libs "${LIBRARY_NAME}" "${PROJECT_LOWER_NAME}_compiler_flags")
+if (TARGET "${DEPENDANT_LIBRARY}")
+  list(APPEND installable_libs "${DEPENDANT_LIBRARY}")
 endif ()
+install(TARGETS ${installable_libs}
+        DESTINATION "bin"
+        EXPORT "${LIBRARY_NAME}Targets")
+install(FILES "${_export_file}" "logger.h" DESTINATION "include")

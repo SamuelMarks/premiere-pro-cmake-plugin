@@ -1,7 +1,7 @@
 #ifndef PP_LOGGER_H
 #define PP_LOGGER_H
 
-//#include <libcommon_and_static_export.h>
+#include "common_export.h"
 #include "../configure/configure.h"
 
 #ifdef	__cplusplus
@@ -26,26 +26,26 @@ extern void copy2ConvertStringLiteralIntoUTF16(const wchar_t*, prUTF16Char*);
 #else
 typedef void* PrSDKErrorSuite3;
 
-#if (defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)) && defined(PLUGIN_MODE)
-typedef	unsigned short int	prUTF16Char;
+#if defined(__APPLE__) && defined(__MACH__)
+typedef unsigned short int prUTF16Char;
 #else
-typedef wchar_t		prUTF16Char;
+typedef wchar_t	prUTF16Char;
 #endif
 
 #endif
 
-extern prUTF16Char * to_wchar(const char*);
-extern void set_error_suite_ptr(PrSDKErrorSuite3 *);
-extern void cleanup_error_suite_ptr();
+extern COMMON_EXPORT prUTF16Char * to_wchar(const char*);
+extern COMMON_EXPORT void set_error_suite_ptr(PrSDKErrorSuite3 *);
+extern COMMON_EXPORT void cleanup_error_suite_ptr();
 
-extern int log_info(const char *);
-extern int log_info_w(const wchar_t *);
+extern COMMON_EXPORT int log_info(const char *);
+extern COMMON_EXPORT int log_info_w(const wchar_t *);
 
-extern int log_warn(const char *);
-extern int log_warn_w(const wchar_t *);
+extern COMMON_EXPORT int log_warn(const char *);
+extern COMMON_EXPORT int log_warn_w(const wchar_t *);
 
-extern int log_error(const char *);
-extern int log_error_w(const wchar_t *);
+extern COMMON_EXPORT int log_error(const char *);
+extern COMMON_EXPORT int log_error_w(const wchar_t *);
 
 #ifdef    __cplusplus
 }
