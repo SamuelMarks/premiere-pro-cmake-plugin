@@ -11,16 +11,16 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [macos-latest, windows-latest]
         include:
           - os: windows-latest
             triplet: x64-windows
             vcpkgCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
             vcpkgPackages: 'zlib openssl'
-          - os: ubuntu-latest
-            triplet: x64-linux
-            vcpkgCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
-            vcpkgPackages: 'zlib openssl'
+#          - os: ubuntu-latest
+#            triplet: x64-linux
+#            vcpkgCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
+#            vcpkgPackages: 'zlib openssl'
           - os: macos-latest
             triplet: x64-osx
             vcpkgCommitId: '30124253eecff36bc90f73341edbfb4f845e2a1e'
@@ -55,8 +55,9 @@ jobs:
           cmakeGenerator: 'Ninja'
           cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          cmakeAppendedArgs: '-DSTANDALONE_MODE=1'
           useVcpkgToolchainFile: true
-          buildWithCMakeArgs: '-- -v -DSTANDALONE_MODE=1'
+          buildWithCMakeArgs: '-- -v'
           buildDirectory: '${{ runner.workspace }}/b/ninja/'
       - name: Run CMake+Ninja with triplet (cmd)
         uses: lukka/run-cmake@main
@@ -64,9 +65,10 @@ jobs:
         with:
           cmakeGenerator: 'Ninja'
           cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+          cmakeAppendedArgs: '-DSTANDALONE_MODE=1'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           useVcpkgToolchainFile: true
-          buildWithCMakeArgs: '-- -v -DSTANDALONE_MODE=1'
+          buildWithCMakeArgs: '-- -v'
           vcpkgTriplet: ${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}
           buildDirectory: '${{ runner.workspace }}/b/ninja/'
       - name: Run CMake+Ninja with triplet (bash)
@@ -77,8 +79,9 @@ jobs:
           cmakeGenerator: 'Ninja'
           cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
+          cmakeAppendedArgs: '-DSTANDALONE_MODE=1'
           useVcpkgToolchainFile: true
-          buildWithCMakeArgs: '-- -v -DSTANDALONE_MODE=1'
+          buildWithCMakeArgs: '-- -v'
           vcpkgTriplet: ${{ steps.runvcpkg.outputs.RUNVCPKG_VCPKG_TRIPLET_OUT }}
           buildDirectory: '${{ runner.workspace }}/b/ninja-bash/'
           useShell: bash
