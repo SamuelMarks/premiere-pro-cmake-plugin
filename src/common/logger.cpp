@@ -3,7 +3,7 @@
 #include <cstdio>
 #include <cstring>
 
-#if __APPLE__ && __MACH__
+#if defined(__APPLE__) && defined(__MACH__)
 #include <xcselect.h>
 #include <cwchar>
 #include <CoreFoundation/CoreFoundation.h>
@@ -17,7 +17,7 @@
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
 static const wchar_t* PROJECT_NAME_W = WIDEN(PROJECT_NAME);
-#elif __APPLE__ && __MACH__
+#elif defined(__APPLE__) && defined(__MACH__)
 static const prUTF16Char* PROJECT_NAME_W = to_wchar(PROJECT_NAME);
 #endif
 
@@ -36,7 +36,7 @@ void copy2ConvertStringLiteralIntoUTF16(const wchar_t* inputString, prUTF16Char*
     size_t length = wcslen(inputString);
     wcscpy_s(destination, length + 1, inputString);
 #define strdup _strdup
-#elif __APPLE__ && __MACH__
+#elif defined(__APPLE__) && defined(__MACH__)
     size_t length = wcslen(inputString);
 	CFRange	range = {0, kPrMaxPath};
 	range.length = length;
@@ -68,7 +68,7 @@ prUTF16Char * to_wchar(const char* message) {
 #else
     mbstowcs(w_str, message, cSize);
 #endif
-#if __APPLE__ && __MACH__
+#if defined(__APPLE__) && defined(__MACH__)
     prUTF16Char *ut16str = new prUTF16Char[cSize];
     copy2ConvertStringLiteralIntoUTF16(w_str, ut16str);
     return ut16str;

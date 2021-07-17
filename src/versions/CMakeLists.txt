@@ -3,9 +3,13 @@ string(REPLACE " " "_" LIBRARY_NAME "${LIBRARY_NAME}")
 
 include(GenerateExportHeader)
 
-# add the library that runs
-message(STATUS LIBRARY_TYPE_FLAG = ${LIBRARY_TYPE_FLAG})
-add_library("${LIBRARY_NAME}" "${LIBRARY_TYPE_FLAG}" "versions.c")
+set(Header_Files "versions.h")
+source_group("Header Files" FILES "${Header_Files}")
+
+set(Source_Files "versions.c")
+source_group("Source Files" FILES "${Source_Files}")
+
+add_library("${LIBRARY_NAME}" "${LIBRARY_TYPE_FLAG}" "${Header_Files}" "${Source_Files}")
 
 set(_libs "")
 
@@ -73,4 +77,4 @@ endif ()
 install(TARGETS ${installable_libs}
         DESTINATION "bin"
         EXPORT "${LIBRARY_NAME}Targets")
-install(FILES "${_export_file}" "versions.h" DESTINATION "include")
+install(FILES "${_export_file}" "${Header_Files}" DESTINATION "include")

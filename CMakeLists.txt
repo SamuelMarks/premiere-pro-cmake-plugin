@@ -72,22 +72,38 @@ configure_file("src/configure.h.in" "${PROJECT_BINARY_DIR}/configure/configure.h
 # set(LIBRARY_TYPE_FLAG "SHARED")
 set(PREMSDKBUILDPATH "" CACHE PATH "Location of Premiere Pro plugin directory")
 if(NOT DEFINED ENV{PREMSDKBUILDPATH})
-    if(APPLE)
-        set(ENV{PREMSDKBUILDPATH} "/Library/Application Support/Adobe/Common/Plug-ins/7.0/MediaCore/")
-        message(STATUS \$ENV{PREMSDKBUILDPATH} = "$ENV{PREMSDKBUILDPATH}")
+    if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+        set(ENV{PREMSDKBUILDPATH} "/Library/Application Support/Adobe/Common/Plug-ins/7.0/MediaCore/${PROJECT_NAME}/")
     else()
-        set(ENV{PREMSDKBUILDPATH} "ENV{ProgramFiles}\\Adobe\\Common\\Plug-ins\\7.0\\MediaCore\\")
+        set(ENV{PREMSDKBUILDPATH} "ENV{ProgramFiles}\\Adobe\\Common\\Plug-ins\\7.0\\MediaCore\\${PROJECT_NAME}\\")
     endif()
+    message(STATUS \$ENV{PREMSDKBUILDPATH} = "$ENV{PREMSDKBUILDPATH}")
 endif()
 if(NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
     set(PREMSDKBUILDPATH "$ENV{PREMSDKBUILDPATH}")
 endif()
-
+if(NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
+    file(MAKE_DIRECTORY ${PREMSDKBUILDPATH})
+endif()
 # control where the static and shared libraries are built so that on windows
 # we don't need to tinker with the path to run the executable
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
+
+option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
+elseif(UNIX)
+    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib")
+endif()
+
+# configure a header file to pass the version number only
+configure_file(
+        "${PROJECT_NAME}Config.h.in"
+        "${PROJECT_NAME}Config.h"
+)
 
 #    # First for the generic no-config case (e.g. with mingw)
 #    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY "$ENV{PREMSDKBUILDPATH}" )
@@ -195,57 +211,66 @@ endif ()
 # Installer configuration (CPack) #
 ###################################
 
-## add the install targets
-#install(
-#        TARGETS "${PROJECT_NAME}"
-#        DESTINATION "bin"
-#)
-#install(
-#        FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.h"
-#        DESTINATION "include"
-#)
-#
-#include(InstallRequiredSystemLibraries)
-#set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
-#set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
-#set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
-#include(CPack)
-#
-## install the configuration targets
-#install(
-#        EXPORT "${LIBRARY_NAME_0}Targets"
-#        FILE "${LIBRARY_NAME_0}Targets.cmake"
-#        DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
-#)
-#
-#include(CMakePackageConfigHelpers)
-#
-## generate the config file that is includes the exports
-#configure_package_config_file(
-#        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
-#        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
-#        INSTALL_DESTINATION "lib/cmake/example"
-#        NO_SET_AND_CHECK_MACRO
-#        NO_CHECK_REQUIRED_COMPONENTS_MACRO
-#)
-#
-## generate the version file for the config file
-#write_basic_package_version_file(
-#        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}ConfigVersion.cmake"
-#        VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}"
-#        COMPATIBILITY AnyNewerVersion
-#)
-#
-## install the configuration file
-#install(
-#        FILES
-#        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
-#        DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
-#)
-#
-## generate the export targets for the build tree
-## needs to be after the install(TARGETS ) command
-#export(
-#        EXPORT "${LIBRARY_NAME_0}Targets"
-#        FILE "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Targets.cmake"
-#)
+if (PLUGIN_MODE)
+    set(INSTALL_DEST "lib")
+else ()
+    set(INSTALL_DEST "bin")
+endif ()
+
+# add the install targets
+
+install(
+        TARGETS "${PROJ_NAME}"
+        DESTINATION "${INSTALL_DEST}"
+)
+install(
+        FILES "${PROJECT_BINARY_DIR}/${PROJECT_NAME}Config.h"
+        DESTINATION "include"
+)
+
+include(InstallRequiredSystemLibraries)
+set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
+set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
+set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
+
+include(CPack)
+include(CMakePackageConfigHelpers)
+
+foreach (LIBRARY_NAME_0 ${PP_LIBRARIES})
+    # install the configuration targets
+    install(
+            EXPORT "${LIBRARY_NAME_0}Targets"
+            FILE "${LIBRARY_NAME_0}Targets.cmake"
+            DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
+    )
+
+    # generate the config file that is includes the exports
+    configure_package_config_file(
+            "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+            "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
+            INSTALL_DESTINATION "lib/cmake/example"
+            NO_SET_AND_CHECK_MACRO
+            NO_CHECK_REQUIRED_COMPONENTS_MACRO
+    )
+
+    # generate the version file for the config file
+    write_basic_package_version_file(
+            "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}ConfigVersion.cmake"
+            VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}"
+            COMPATIBILITY AnyNewerVersion
+    )
+
+    # install the configuration file
+    install(
+            FILES
+            "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
+            DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
+    )
+
+    # generate the export targets for the build tree
+    # needs to be after the install(TARGETS ) command
+    export(
+            EXPORT "${LIBRARY_NAME_0}Targets"
+            FILE "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Targets.cmake"
+    )
+endforeach ()

@@ -9,8 +9,13 @@ if (PLUGIN_MODE)
   list(APPEND "${ADOBE_PP_SDK}/Examples/Headers/PrSDKTypes.h")
   set(_pp_headers "${ADOBE_PP_SDK}/Examples/Headers")
 endif()
+
 source_group("Header Files" FILES "${Header_Files}")
-add_library("${LIBRARY_NAME}" "${LIBRARY_TYPE_FLAG}" "${Header_Files}" "logger.cpp")
+
+set(Source_Files "logger.cpp")
+source_group("Source Files" FILES "${Source_Files}")
+
+add_library("${LIBRARY_NAME}" "${LIBRARY_TYPE_FLAG}" "${Header_Files}" "${Source_Files}")
 
 target_include_directories(
         "${LIBRARY_NAME}"
@@ -19,18 +24,20 @@ target_include_directories(
         "$<INSTALL_INTERFACE:include>"
         #"${_pp_headers}"
 )
-target_include_directories(
-        "${LIBRARY_NAME}"
-        PUBLIC
-        "${_pp_headers}"
-)
+if (PLUGIN_MODE)
+  target_include_directories(
+          "${LIBRARY_NAME}"
+          PUBLIC
+          "${_pp_headers}"
+  )
+endif()
 
 target_link_libraries("${LIBRARY_NAME}" PUBLIC "${PROJECT_LOWER_NAME}_compiler_flags")
 
-if (APPLE)
+if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   find_library(CORE_FOUNDATION_LIBRARY CoreFoundation ONLY)
   target_link_libraries("${LIBRARY_NAME}" PUBLIC "${CORE_FOUNDATION_LIBRARY}")
-endif (APPLE)
+endif ()
 
 set_target_properties(
         "${LIBRARY_NAME}"

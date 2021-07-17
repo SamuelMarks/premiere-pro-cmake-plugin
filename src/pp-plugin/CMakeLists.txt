@@ -209,6 +209,6 @@ foreach (_lib ${PP_LIBRARIES})
 endforeach ()
 
 install(TARGETS ${installable_libs}
-        DESTINATION "bin"
+        DESTINATION "${INSTALL_DEST}"
         EXPORT "${LIBRARY_NAME}Targets")
 install(FILES "${_export_file}" "${Header_Files}" DESTINATION "include")

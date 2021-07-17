@@ -1,0 +1,9 @@
+#ifndef PP_CONFIG_H
+#define PP_CONFIG_H
+
+/* the configured options and settings for pp */
+#define PP_VERSION_MAJOR @pp_VERSION_MAJOR@
+#define PP_VERSION_MINOR @pp_VERSION_MINOR@
+#define PP_VERSION_PATCH @pp_VERSION_PATCH@
+
+#endif /* PP_CONFIG_H */
