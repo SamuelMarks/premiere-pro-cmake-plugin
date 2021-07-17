@@ -27,6 +27,11 @@ target_include_directories(
 
 target_link_libraries("${LIBRARY_NAME}" PUBLIC "${PROJECT_LOWER_NAME}_compiler_flags")
 
+if (APPLE)
+  find_library(CORE_FOUNDATION_LIBRARY CoreFoundation ONLY)
+  target_link_libraries("${LIBRARY_NAME}" PUBLIC "${CORE_FOUNDATION_LIBRARY}")
+endif (APPLE)
+
 set_target_properties(
         "${LIBRARY_NAME}"
         PROPERTIES

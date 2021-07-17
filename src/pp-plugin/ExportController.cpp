@@ -146,12 +146,12 @@ prMALError ecExportTimeline(
         else
         {
             for(unsigned i=0; i<VERSIONS_N; i++)
-                log_info_w(VERSIONS[i][0]),
-                log_info_w(VERSIONS[i][1]);
+                log_info_w(reinterpret_cast<const prUTF16Char *>(VERSIONS[i][0])),
+                log_info_w(reinterpret_cast<const prUTF16Char *>(VERSIONS[i][1]));
 
             sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
-                                                  const_cast<prUTF16Char *>(L"ExportController.cpp"),
-                                                  const_cast<prUTF16Char *>(L"ExportController.cpp")
+                                                  to_wchar("ExportController.cpp"),
+                                                  to_wchar("ExportController.cpp")
             );
 
             result = eExportControllerErrorReportedInSuite;

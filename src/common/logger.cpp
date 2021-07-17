@@ -2,16 +2,28 @@
 #include <cstdlib>
 #include <cstdio>
 #include <cstring>
+
+#if __APPLE__ && __MACH__
+#include <xcselect.h>
+#include <cwchar>
+#include <CoreFoundation/CoreFoundation.h>
+#endif
+
 #include "../configure/configure.h"
 #include "logger.h"
 
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
-static const wchar_t* PROJECT_NAME_W = WIDEN(PROJECT_NAME);
 
+#if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
+static const wchar_t* PROJECT_NAME_W = WIDEN(PROJECT_NAME);
+#elif __APPLE__ && __MACH__
+static const prUTF16Char* PROJECT_NAME_W = to_wchar(PROJECT_NAME);
+#endif
+
+static prUTF16Char* PROJECT_NAME_UTF16 = const_cast<prUTF16Char *>(PROJECT_NAME_W);
 
 #ifdef PLUGIN_MODE
-static prUTF16Char* PROJECT_NAME_UTF16 = const_cast<prUTF16Char *>(PROJECT_NAME_W);
 
 static PrSDKErrorSuite3				*sErrorSuitePtr = NULL;
 
@@ -24,8 +36,8 @@ void copy2ConvertStringLiteralIntoUTF16(const wchar_t* inputString, prUTF16Char*
     size_t length = wcslen(inputString);
     wcscpy_s(destination, length + 1, inputString);
 #define strdup _strdup
-#else
-    int length = wcslen(inputString);
+#elif __APPLE__ && __MACH__
+    size_t length = wcslen(inputString);
 	CFRange	range = {0, kPrMaxPath};
 	range.length = length;
 	CFStringRef inputStringCFSR = CFStringCreateWithBytes(	kCFAllocatorDefault,
@@ -50,8 +62,19 @@ prUTF16Char * to_wchar(const char* message) {
     const size_t cSize = strlen(message);
     wchar_t *w_str = new wchar_t[cSize];
     size_t outSize;
+#if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
     mbstowcs_s(&outSize, w_str, cSize, message, cSize-1);
     return w_str;
+#else
+    mbstowcs(w_str, message, cSize);
+#endif
+#if __APPLE__ && __MACH__
+    prUTF16Char *ut16str = new prUTF16Char[cSize];
+    copy2ConvertStringLiteralIntoUTF16(w_str, ut16str);
+    return ut16str;
+#else
+    return w_str;
+#endif
 }
 
 #endif
@@ -90,14 +113,14 @@ int log_info(const char *message) {
     return EXIT_SUCCESS;
 }
 
-int log_info_w(const wchar_t *message) {
-    if (wcslen(message) == 0) return EXIT_FAILURE;
+int log_info_w(const prUTF16Char *message) {
+    if (message[0] == 0) return EXIT_FAILURE;
 
 #ifdef PLUGIN_MODE
     if (sErrorSuitePtr == NULL) return EXIT_FAILURE;
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
-                                          const_cast<wchar_t *>(message),
+                                          const_cast<prUTF16Char *>(message),
                                           PROJECT_NAME_UTF16
     );
 #else
@@ -124,14 +147,14 @@ int log_warn(const char *message) {
     return EXIT_SUCCESS;
 }
 
-int log_warn_w(const wchar_t *message) {
-    if (wcslen(message) == 0) return EXIT_FAILURE;
+int log_warn_w(const prUTF16Char *message) {
+    if (message[0] == 0) return EXIT_FAILURE;
 
 #ifdef PLUGIN_MODE
     if (sErrorSuitePtr == NULL) return EXIT_FAILURE;
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeWarning,
-                                          const_cast<wchar_t *>(message),
+                                          const_cast<prUTF16Char *>(message),
                                           PROJECT_NAME_UTF16
     );
 #else
@@ -158,14 +181,14 @@ int log_error(const char *message) {
     return EXIT_SUCCESS;
 }
 
-int log_error_w(const wchar_t *message) {
-    if (wcslen(message) == 0) return EXIT_FAILURE;
+int log_error_w(const prUTF16Char *message) {
+    if (message[0] == 0) return EXIT_FAILURE;
 
 #ifdef PLUGIN_MODE
     if (sErrorSuitePtr == NULL) return EXIT_FAILURE;
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeError,
-                                          const_cast<wchar_t *>(message),
+                                          const_cast<prUTF16Char *>(message),
                                           PROJECT_NAME_UTF16
     );
 #else

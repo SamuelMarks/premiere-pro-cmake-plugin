@@ -53,11 +53,11 @@ if (NOT DEFINED PLUGIN_MODE AND NOT DEFINED STANDALONE_MODE)
 endif ()
 
 # Instead of `BUILD_SHARED_LIBS`
-if(PLUGIN_MODE)
+if (PLUGIN_MODE)
     set(LIBRARY_TYPE_FLAG "SHARED")
 else ()
     set(LIBRARY_TYPE_FLAG "STATIC")
-endif()
+endif ()
 
 ################################
 # Configure file (interpolate) #

@@ -39,13 +39,13 @@ extern COMMON_EXPORT void set_error_suite_ptr(PrSDKErrorSuite3 *);
 extern COMMON_EXPORT void cleanup_error_suite_ptr();
 
 extern COMMON_EXPORT int log_info(const char *);
-extern COMMON_EXPORT int log_info_w(const wchar_t *);
+extern COMMON_EXPORT int log_info_w(const prUTF16Char *);
 
 extern COMMON_EXPORT int log_warn(const char *);
-extern COMMON_EXPORT int log_warn_w(const wchar_t *);
+extern COMMON_EXPORT int log_warn_w(const prUTF16Char *);
 
 extern COMMON_EXPORT int log_error(const char *);
-extern COMMON_EXPORT int log_error_w(const wchar_t *);
+extern COMMON_EXPORT int log_error_w(const prUTF16Char *);
 
 #ifdef    __cplusplus
 }
