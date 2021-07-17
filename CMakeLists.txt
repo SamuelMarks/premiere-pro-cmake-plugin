@@ -82,8 +82,8 @@ endif()
 if(NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
     set(PREMSDKBUILDPATH "$ENV{PREMSDKBUILDPATH}")
 endif()
-if(NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
-    file(MAKE_DIRECTORY ${PREMSDKBUILDPATH})
+if(PLUGIN_MODE AND NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
+    file(MAKE_DIRECTORY "${PREMSDKBUILDPATH}")
 endif()
 # control where the static and shared libraries are built so that on windows
 # we don't need to tinker with the path to run the executable
