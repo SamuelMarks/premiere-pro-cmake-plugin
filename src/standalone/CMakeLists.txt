@@ -21,6 +21,27 @@ elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 endif ()
 
 ###########
+# Testing #
+###########
+
+# enable testing
+include(CTest)
+if (BUILD_TESTING)
+    enable_testing()
+
+    # does the application run
+    add_test(NAME Runs COMMAND "${PROJ_NAME}")
+
+    # is the output correct?
+    add_test(NAME Output COMMAND "${PROJ_NAME}")
+    set_tests_properties(
+            Output
+            PROPERTIES PASS_REGULAR_EXPRESSION
+            "version:*;get_hash():*;ZLIB_VERSION:*;OPENSSL_VERSION_TEXT:*"
+    )
+endif (BUILD_TESTING)
+
+###########
 # Install #
 ###########
 

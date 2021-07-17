@@ -1,5 +1,6 @@
 premiere-pro-cmake-plugin
 =========================
+[![build and test](https://github.com/SamuelMarks/premiere-pro-cmake-plugin/actions/workflows/build-and-test.yml/badge.svg)](https://github.com/SamuelMarks/premiere-pro-cmake-plugin/actions/workflows/build-and-test.yml)
 [![License](https://img.shields.io/badge/license-Apache--2.0%20OR%20MIT-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 [Adobe](https://adobe.com) provides a C++ API to build plugins for its suite, including [Premiere Pro](https://www.adobe.com/au/products/premiere.html).

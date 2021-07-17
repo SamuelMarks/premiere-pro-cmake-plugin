@@ -133,6 +133,11 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 include_directories("${CMAKE_BINARY_DIR}/configure")
 
+#################################
+# Testing configuration (CPack) #
+#################################
+include(CTest)
+
 ###########################
 # Build these subprojects #
 ###########################
@@ -206,6 +211,7 @@ endif ()
 #        set(CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 #    endif()
 #endif ()
+
 
 ###################################
 # Installer configuration (CPack) #
