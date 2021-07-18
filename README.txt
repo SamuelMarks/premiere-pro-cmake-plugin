@@ -26,7 +26,7 @@ integration.
 
 Install vcpkg, configure it with your system. Then run:
 
-    [root]/vcpkg/vcpkg install <dependencies>
+    [root]/vcpkg/vcpkg install openssl zlib
 
 Premiere Pro SDK
 

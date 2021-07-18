@@ -18,7 +18,7 @@ It's very popular, and has strong CMake integration. Henceforth, it is chosen fo
 
 [Install vcpkg](https://vcpkg.io/en/getting-started.html), configure it with your system. Then run:
 
-    [root]/vcpkg/vcpkg install <dependencies>
+    [root]/vcpkg/vcpkg install openssl zlib
 
 ## Premiere Pro SDK
 Due to licensing issues, this cannot be included directly. You must specify it in the [build](#Build) step with `-DADOBE_PP_SDK`. Download the SDK here; then unzip: https://console.adobe.io/servicesandapis
