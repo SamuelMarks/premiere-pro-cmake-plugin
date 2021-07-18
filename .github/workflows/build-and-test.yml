@@ -53,7 +53,7 @@ jobs:
         id: runcmake
         with:
           cmakeGenerator: 'Ninja'
-          cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+          cmakeListsOrSettingsJson: 'CMakeListsTxtAdvanced'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           cmakeAppendedArgs: '-DSTANDALONE_MODE=1'
           useVcpkgToolchainFile: true
@@ -64,7 +64,7 @@ jobs:
         id: runcmake_cmd
         with:
           cmakeGenerator: 'Ninja'
-          cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+          cmakeListsOrSettingsJson: 'CMakeListsTxtAdvanced'
           cmakeAppendedArgs: '-DSTANDALONE_MODE=1'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           useVcpkgToolchainFile: true
@@ -77,7 +77,7 @@ jobs:
         id: runcmake_bash
         with:
           cmakeGenerator: 'Ninja'
-          cmakeListsOrSettingsJson: 'CMakeListsTxtBasic'
+          cmakeListsOrSettingsJson: 'CMakeListsTxtAdvanced'
           cmakeListsTxtPath: '${{ github.workspace }}/CMakeLists.txt'
           cmakeAppendedArgs: '-DSTANDALONE_MODE=1'
           useVcpkgToolchainFile: true
