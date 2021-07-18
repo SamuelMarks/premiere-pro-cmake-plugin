@@ -1,0 +1,1 @@
+This installs a Premiere Pro plugin. Ensure you put it in the right plugin directory.

@@ -20,16 +20,20 @@ endif ()
 # Source groups #
 #################
 
-set(Header_Files
+set(Adobe_SDK_Header_Files
         "${ADOBE_PP_SDK}/Examples/Headers/PrSDKErrorSuite.h"
         "${ADOBE_PP_SDK}/Examples/Headers/PrSDKExportController.h"
         "${ADOBE_PP_SDK}/Examples/Headers/PrSDKExportControllerSuite.h"
         "${ADOBE_PP_SDK}/Examples/Headers/PrSDKSequenceInfoSuite.h"
         "${ADOBE_PP_SDK}/Examples/Headers/PrSDKTimeSuite.h"
         "${ADOBE_PP_SDK}/Examples/Headers/PrSDKTypes.h"
+)
+
+set(Header_Files
         "ExportController.h"
 )
 source_group("Header Files" FILES "${Header_Files}")
+source_group("Adobe SDK Header Files" FILES "${Adobe_SDK_Header_Files}")
 
 set(Source_Files "ExportController.cpp")
 source_group("Source Files" FILES "${Source_Files}")
@@ -41,6 +45,7 @@ set(Utility_Files
 source_group("Utility Files" FILES "${Utility_Files}")
 
 set(ALL_FILES
+        "${Adobe_SDK_Header_Files}"
         "${Header_Files}"
         "${Source_Files}"
         "${Utility_Files}"
