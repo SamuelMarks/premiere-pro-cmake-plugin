@@ -31,6 +31,10 @@ target_compile_options(
         "$<${gcc_like}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
         "$<${msvc}:$<BUILD_INTERFACE:-W3;-WX;-Zi;-permissive->>"
 )
+if (MSVC)
+    add_compile_options("$<$<CONFIG:DEBUG>:-MDd>")
+    add_compile_options("$<$<CONFIG:RELEASE>:-Md>")
+endif (MSVC)
 
 ################################################################################
 # Set target arch type if empty. Visual studio solution generator provides it.
@@ -85,9 +89,10 @@ endif()
 if(NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
     set(PREMSDKBUILDPATH "$ENV{PREMSDKBUILDPATH}")
 endif()
-if(PLUGIN_MODE AND NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
-    file(MAKE_DIRECTORY "${PREMSDKBUILDPATH}")
-endif()
+# if(PLUGIN_MODE AND NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
+#     file(MAKE_DIRECTORY "${PREMSDKBUILDPATH}")
+# endif()
+
 # control where the static and shared libraries are built so that on windows
 # we don't need to tinker with the path to run the executable
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${PROJECT_BINARY_DIR}")
@@ -157,7 +162,7 @@ endforeach ()
 if (PLUGIN_MODE)
     set(PROJ_NAME "pp-plugin")
     add_subdirectory("src/${PROJ_NAME}")
-    set_target_properties("${PROJ_NAME}" PROPERTIES SUFFIX ".prm")
+    set_target_properties("${PROJ_NAME}" PROPERTIES SUFFIX ".prmp")
 else ()
     set(PROJ_NAME "standalone")
     add_subdirectory("src/${PROJ_NAME}")
@@ -250,7 +255,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_LIST_DIR}/README.txt")
 set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_CURRENT_LIST_DIR}/Welcome.txt")
-set(CPACK_PACKAGE_CONTACT " https://github.com/SamuelMarks/premiere-pro-cmake-plugin")
+set(CPACK_PACKAGE_CONTACT "https://github.com/SamuelMarks/premiere-pro-cmake-plugin")
 set(CPACK_SET_DESTDIR true)
 #set(CPACK_INSTALL_PREFIX "${PREMSDKBUILDPATH}")
 set(CPACK_PACKAGING_INSTALL_PREFIX "${PREMSDKBUILDPATH}")
