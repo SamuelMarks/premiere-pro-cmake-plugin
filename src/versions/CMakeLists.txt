@@ -1,7 +1,7 @@
 get_filename_component(LIBRARY_NAME "${CMAKE_CURRENT_SOURCE_DIR}" NAME)
 string(REPLACE " " "_" LIBRARY_NAME "${LIBRARY_NAME}")
 
-include(GenerateExportHeader)
+# include(GenerateExportHeader)
 
 set(Header_Files "versions.h")
 source_group("Header Files" FILES "${Header_Files}")
@@ -43,7 +43,7 @@ set_target_properties(
 )
 
 set(_export_file "${CMAKE_CURRENT_SOURCE_DIR}/${LIBRARY_NAME}_export.h")
-generate_export_header("${LIBRARY_NAME}" EXPORT_FILE_NAME "${_export_file}")
+# generate_export_header("${LIBRARY_NAME}" EXPORT_FILE_NAME "${_export_file}")
 
 # tests
 include(CTest)

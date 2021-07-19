@@ -29,11 +29,14 @@ target_compile_options(
         "${PROJECT_LOWER_NAME}_compiler_flags"
         INTERFACE
         "$<${gcc_like}:$<BUILD_INTERFACE:-Wall;-Wextra;-Wshadow;-Wformat=2;-Wunused>>"
-        "$<${msvc}:$<BUILD_INTERFACE:-W3;-WX;-Zi;-permissive->>"
+        # Zc:forScope
+        "$<${msvc}:$<BUILD_INTERFACE:-W3;-WX;-Zi;-permissive-;-GS;-Zc:wchar_t;-Gm-;-Od;-Zc:inline;-fp:precise;-RTC1;-Gd;-MDd;-FC;-EHsc>>"
 )
 if (MSVC)
+    # /D "_WINDLL" /D "_MBCS"
+    add_compile_options("$<$<CONFIG:RELEASE>:-MD>")
     add_compile_options("$<$<CONFIG:DEBUG>:-MDd>")
-    add_compile_options("$<$<CONFIG:RELEASE>:-Md>")
+    add_link_options("$<$<CONFIG:RELEASE>:-OPT:REF;-OPT:ICF>")
 endif (MSVC)
 
 ################################################################################
@@ -56,12 +59,9 @@ if (NOT DEFINED PLUGIN_MODE AND NOT DEFINED STANDALONE_MODE)
     set(PLUGIN_MODE 1)
 endif ()
 
-message(PLUGIN_MODE = ${PLUGIN_MODE})
-message(STANDALONE_MODE = ${STANDALONE_MODE})
-
 # Instead of `BUILD_SHARED_LIBS`
 if (PLUGIN_MODE)
-    set(LIBRARY_TYPE_FLAG "SHARED")
+    #set(LIBRARY_TYPE_FLAG "SHARED")
 else ()
     set(LIBRARY_TYPE_FLAG "STATIC")
 endif ()
@@ -89,6 +89,7 @@ endif()
 if(NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
     set(PREMSDKBUILDPATH "$ENV{PREMSDKBUILDPATH}")
 endif()
+file(TO_CMAKE_PATH ${PREMSDKBUILDPATH} PREMSDKBUILDPATH)
 # if(PLUGIN_MODE AND NOT IS_DIRECTORY "${PREMSDKBUILDPATH}")
 #     file(MAKE_DIRECTORY "${PREMSDKBUILDPATH}")
 # endif()
@@ -106,7 +107,7 @@ endif()
 
 set(X_VCPKG_APPLOCAL_DEPS_INSTALL ON)
 
-option(BUILD_SHARED_LIBS "Build using shared libraries" ON)
+option(BUILD_SHARED_LIBS "Build using shared libraries" OFF)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Darwin")
     set(CMAKE_INSTALL_RPATH "@executable_path/../lib")
@@ -254,18 +255,25 @@ set(CPACK_BUNDLE_NAME "${PROJECT_NAME}")
 set(CPACK_PACKAGE_VENDOR "SamuelMarks")
 set(CPACK_PACKAGE_DESCRIPTION "This project aims to be a good starter for cross-platform Premiere Pro plugin development, including those that have third-party dependencies.")
 set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Starter for cross-platform Premiere Pro plugin development.")
-set(CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
-set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
-set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/CustomVolumeIcon.icns")
+if (APPLE)
+    set(CPACK_BUNDLE_PLIST "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
+    set(CPACK_BUNDLE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/Info.plist")
+    set(CPACK_PACKAGE_ICON "${CMAKE_CURRENT_SOURCE_DIR}/CustomVolumeIcon.icns")
+endif()
 set(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/License.txt")
 set(CPACK_PACKAGE_VERSION_MAJOR "${${PROJECT_NAME}_VERSION_MAJOR}")
 set(CPACK_PACKAGE_VERSION_MINOR "${${PROJECT_NAME}_VERSION_MINOR}")
 set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_LIST_DIR}/README.txt")
 set(CPACK_RESOURCE_FILE_WELCOME "${CMAKE_CURRENT_LIST_DIR}/Welcome.txt")
 set(CPACK_PACKAGE_CONTACT "https://github.com/SamuelMarks/premiere-pro-cmake-plugin")
-set(CPACK_SET_DESTDIR true)
+#set(CPACK_SET_DESTDIR true)
 #set(CPACK_INSTALL_PREFIX "${PREMSDKBUILDPATH}")
-set(CPACK_PACKAGING_INSTALL_PREFIX "${PREMSDKBUILDPATH}")
+#set(CPACK_PACKAGING_INSTALL_PREFIX "${PREMSDKBUILDPATH}")
+#CPACK_NSIS_INSTALL_ROOT
+if (WIN32)
+    string(REPLACE "/" "\\" PREMSDKBUILDPATH "${PREMSDKBUILDPATH}")
+endif()
+set(CPACK_NSIS_INSTALL_ROOT "${PREMSDKBUILDPATH}")
 
 include(CPack)
 include(CMakePackageConfigHelpers)
