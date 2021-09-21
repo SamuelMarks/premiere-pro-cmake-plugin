@@ -1,7 +1,7 @@
 /* Technically in `STANDALONE_MODE` this is a C file */
-#include <cstdlib>
-#include <cstdio>
-#include <cstring>
+#include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <xcselect.h>
@@ -9,7 +9,6 @@
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
-#include "../configure/configure.h"
 #include "logger.h"
 
 #define WIDEN2(x) L ## x
@@ -26,56 +25,6 @@ static prUTF16Char* PROJECT_NAME_UTF16 = const_cast<prUTF16Char *>(PROJECT_NAME_
 #ifdef PLUGIN_MODE
 
 static PrSDKErrorSuite3				*sErrorSuitePtr = NULL;
-
-// Function to convert and copy string literals to the format expected by the exporter API.
-// On Win: Pass the input directly to the output
-// On Mac: All conversion happens through the CFString format
-void copy2ConvertStringLiteralIntoUTF16(const wchar_t* inputString, prUTF16Char* destination)
-{
-#if (defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)) && defined(PLUGIN_MODE)
-    size_t length = wcslen(inputString);
-    wcscpy_s(destination, length + 1, inputString);
-#define strdup _strdup
-#elif defined(__APPLE__) && defined(__MACH__)
-    size_t length = wcslen(inputString);
-	CFRange	range = {0, kPrMaxPath};
-	range.length = length;
-	CFStringRef inputStringCFSR = CFStringCreateWithBytes(	kCFAllocatorDefault,
-															reinterpret_cast<const UInt8 *>(inputString),
-															length * sizeof(wchar_t),
-															kCFStringEncodingUTF32LE,
-															kPrFalse);
-	CFStringGetBytes(	inputStringCFSR,
-						range,
-						kCFStringEncodingUTF16,
-						0,
-						kPrFalse,
-						reinterpret_cast<UInt8 *>(destination),
-						length * (sizeof (prUTF16Char)),
-						NULL);
-	destination[length] = 0; // Set NULL-terminator, since CFString calls don't set it, and MediaCore hosts expect it
-	CFRelease(inputStringCFSR);
-#endif
-}
-
-prUTF16Char * to_wchar(const char* message) {
-    const size_t cSize = strlen(message);
-    wchar_t *w_str = new wchar_t[cSize];
-    size_t outSize;
-#if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
-    mbstowcs_s(&outSize, w_str, cSize, message, cSize-1);
-    return w_str;
-#else
-    mbstowcs(w_str, message, cSize);
-#endif
-#if defined(__APPLE__) && defined(__MACH__)
-    prUTF16Char *ut16str = new prUTF16Char[cSize];
-    copy2ConvertStringLiteralIntoUTF16(w_str, ut16str);
-    return ut16str;
-#else
-    return w_str;
-#endif
-}
 
 #endif
 
@@ -195,4 +144,53 @@ int log_error_w(const prUTF16Char *message) {
     fprintf(stderr, "%ls\n", message);
 #endif
     return EXIT_SUCCESS;
+}
+
+// TODO: Remove magic numbers
+
+void copy2ConvertStringLiteralIntoUTF16(const wchar_t* inputString, prUTF16Char* destination)
+{
+#if (defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)) && defined(PLUGIN_MODE)
+    size_t length = wcslen(inputString);
+    wcscpy_s(destination, length + 1, inputString);
+#define strdup _strdup
+#elif defined(__APPLE__) && defined(__MACH__)
+    size_t length = wcslen(inputString);
+    CFRange	range = {0, 150};
+    range.length = length;
+    CFStringRef inputStringCFSR = CFStringCreateWithBytes(	kCFAllocatorDefault,
+                                                              reinterpret_cast<const UInt8 *>(inputString),
+                                                              length * sizeof(wchar_t),
+                                                              kCFStringEncodingUTF32LE,
+                                                              false);
+    CFStringGetBytes(	inputStringCFSR,
+                         range,
+                         kCFStringEncodingUTF16,
+                         0,
+                         false,
+                         reinterpret_cast<UInt8 *>(destination),
+                         length * (sizeof (prUTF16Char)),
+                         NULL);
+    destination[length] = 0; // Set NULL-terminator, since CFString calls don't set it, and MediaCore hosts expect it
+    CFRelease(inputStringCFSR);
+#endif
+}
+
+prUTF16Char * to_wchar(const char* message) {
+    const size_t cSize = strlen(message);
+    wchar_t *w_str = new wchar_t[cSize];
+    size_t outSize;
+#if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
+    mbstowcs_s(&outSize, w_str, cSize, message, cSize-1);
+    return w_str;
+#else
+    mbstowcs(w_str, message, cSize);
+#endif
+#if defined(__APPLE__) && defined(__MACH__)
+    prUTF16Char *ut16str = new prUTF16Char[cSize];
+    copy2ConvertStringLiteralIntoUTF16(w_str, ut16str);
+    return ut16str;
+#else
+    return w_str;
+#endif
 }

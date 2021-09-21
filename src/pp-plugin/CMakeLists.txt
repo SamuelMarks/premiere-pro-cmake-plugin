@@ -148,32 +148,33 @@ if (MSVC)
 endif()
 
 # Mostly reverse-engineered from Premiere Pro sample config:
-
-set_target_properties("${LIBRARY_NAME}" PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
-if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
-    target_link_options(${LIBRARY_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-            /DEBUG
-            >
-            $<$<CONFIG:Release>:
-            /DEBUG:FULL;
-            /OPT:REF;
-            /OPT:ICF
-            >
-            /MACHINE:X64
-            )
-elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
-    target_link_options(${LIBRARY_NAME} PRIVATE
-            $<$<CONFIG:Debug>:
-            /DEBUG
-            >
-            $<$<CONFIG:Release>:
-            /DEBUG:FULL;
-            /OPT:REF;
-            /OPT:ICF
-            >
-            )
-endif ()
+if (MSVC)
+    set_target_properties("${LIBRARY_NAME}" PROPERTIES MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>DLL")
+    if("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x64")
+        target_link_options(${LIBRARY_NAME} PRIVATE
+                $<$<CONFIG:Debug>:
+                /DEBUG
+                >
+                $<$<CONFIG:Release>:
+                /DEBUG:FULL;
+                /OPT:REF;
+                /OPT:ICF
+                >
+                /MACHINE:X64
+                )
+    elseif("${CMAKE_VS_PLATFORM_NAME}" STREQUAL "x86")
+        target_link_options(${LIBRARY_NAME} PRIVATE
+                $<$<CONFIG:Debug>:
+                /DEBUG
+                >
+                $<$<CONFIG:Release>:
+                /DEBUG:FULL;
+                /OPT:REF;
+                /OPT:ICF
+                >
+                )
+    endif ()
+endif (MSVC)
 
 ####################################
 # Shared and static library config #

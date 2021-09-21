@@ -2,7 +2,7 @@
 #define PP_LOGGER_H
 
 #include "common_export.h"
-#include "../configure/configure.h"
+#include <configure.h>
 
 #ifdef	__cplusplus
 extern "C" {
