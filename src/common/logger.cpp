@@ -5,7 +5,7 @@
 
 #if defined(__APPLE__) && defined(__MACH__)
 #include <xcselect.h>
-#include <cwchar>
+#include <wchar.h>
 #include <CoreFoundation/CoreFoundation.h>
 #endif
 
@@ -20,7 +20,13 @@ static const wchar_t* PROJECT_NAME_W = WIDEN(PROJECT_NAME);
 static const prUTF16Char* PROJECT_NAME_W = to_wchar(PROJECT_NAME);
 #endif
 
-static prUTF16Char* PROJECT_NAME_UTF16 = const_cast<prUTF16Char *>(PROJECT_NAME_W);
+static prUTF16Char* PROJECT_NAME_UTF16 =
+#ifdef	__cplusplus
+        const_cast<prUTF16Char *>
+#else
+        (prUTF16Char *)
+#endif
+                (PROJECT_NAME_W);
 
 #ifdef PLUGIN_MODE
 
@@ -176,7 +182,7 @@ void copy2ConvertStringLiteralIntoUTF16(const wchar_t* inputString, prUTF16Char*
 #endif
 }
 
-prUTF16Char * to_wchar(const char* message) {
+const prUTF16Char * to_wchar(const char* message) {
     const size_t cSize = strlen(message);
     wchar_t *w_str = new wchar_t[cSize];
     size_t outSize;

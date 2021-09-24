@@ -1,13 +1,26 @@
 cmake_minimum_required(VERSION 3.13)
 cmake_policy(SET CMP0048 NEW)
-project(pp VERSION 0.0.0 LANGUAGES C CXX)
-string(TOLOWER "${PROJECT_NAME}" PROJECT_LOWER_NAME)
 
-if (MSVC)
-    set(CMAKE_CXX_STANDARD 11)
-else ()
-    set(CMAKE_CXX_STANDARD 17)
+if (NOT DEFINED PLUGIN_MODE AND NOT DEFINED STANDALONE_MODE)
+    set(PLUGIN_MODE 1)
 endif ()
+
+if (PLUGIN_MODE)
+    set(LANGUAGES "C CXX")
+    if (MSVC)
+        set(CMAKE_CXX_STANDARD 11)
+    else ()
+        set(CMAKE_CXX_STANDARD 17)
+    endif ()
+    set(COMPILER_INTERFACE "cxx_std_${CMAKE_CXX_STANDARD}")
+else ()
+    set("LANGUAGES" "C")
+    set(CMAKE_C_STANDARD 90)
+    set(COMPILER_INTERFACE "c_std_${CMAKE_C_STANDARD}")
+endif ()
+
+project(pp VERSION 0.0.0 LANGUAGES "${LANGUAGES}")
+string(TOLOWER "${PROJECT_NAME}" PROJECT_LOWER_NAME)
 
 ##################
 # Compiler flags #
@@ -18,7 +31,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 set(CMAKE_VISIBILITY_INLINES_HIDDEN YES)
 
 add_library("${PROJECT_LOWER_NAME}_compiler_flags" INTERFACE)
-target_compile_features("${PROJECT_LOWER_NAME}_compiler_flags" INTERFACE "cxx_std_11")
+target_compile_features("${PROJECT_LOWER_NAME}_compiler_flags" INTERFACE "${COMPILER_INTERFACE}")
 
 # add compiler warning flags just when building this project via
 # the BUILD_INTERFACE genex
@@ -53,10 +66,6 @@ message("${CMAKE_VS_PLATFORM_NAME} architecture in use")
 
 if (NOT DEFINED TARGET_ARCH)
     set(TARGET_ARCH ${CMAKE_HOST_SYSTEM_PROCESSOR})
-endif ()
-
-if (NOT DEFINED PLUGIN_MODE AND NOT DEFINED STANDALONE_MODE)
-    set(PLUGIN_MODE 1)
 endif ()
 
 # Instead of `BUILD_SHARED_LIBS`
@@ -278,41 +287,41 @@ set(CPACK_NSIS_INSTALL_ROOT "${PREMSDKBUILDPATH}")
 include(CPack)
 include(CMakePackageConfigHelpers)
 
-foreach (LIBRARY_NAME_0 ${PP_LIBRARIES})
+# generate the config file that is includes the exports
+configure_package_config_file(
+        "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
+        INSTALL_DESTINATION "lib/cmake/example"
+        NO_SET_AND_CHECK_MACRO
+        NO_CHECK_REQUIRED_COMPONENTS_MACRO
+)
+
+# generate the version file for the config file
+write_basic_package_version_file(
+        "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}ConfigVersion.cmake"
+        VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}"
+        COMPATIBILITY AnyNewerVersion
+)
+
+foreach (lib ${PP_LIBRARIES})
     # install the configuration targets
     install(
-            EXPORT "${LIBRARY_NAME_0}Targets"
-            FILE "${LIBRARY_NAME_0}Targets.cmake"
-            DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
-    )
-
-    # generate the config file that is includes the exports
-    configure_package_config_file(
-            "${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}Config.cmake.in"
-            "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
-            INSTALL_DESTINATION "lib/cmake/example"
-            NO_SET_AND_CHECK_MACRO
-            NO_CHECK_REQUIRED_COMPONENTS_MACRO
-    )
-
-    # generate the version file for the config file
-    write_basic_package_version_file(
-            "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}ConfigVersion.cmake"
-            VERSION "${${PROJECT_NAME}_VERSION_MAJOR}.${${PROJECT_NAME}_VERSION_MINOR}"
-            COMPATIBILITY AnyNewerVersion
+            EXPORT "${lib}Targets"
+            FILE "${lib}Targets.cmake"
+            DESTINATION "lib/cmake/${lib}"
     )
 
     # install the configuration file
     install(
             FILES
-            "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Config.cmake"
-            DESTINATION "lib/cmake/${LIBRARY_NAME_0}"
+            "${CMAKE_CURRENT_BINARY_DIR}/${lib}Config.cmake"
+            DESTINATION "lib/cmake/${lib}"
     )
 
     # generate the export targets for the build tree
     # needs to be after the install(TARGETS ) command
     export(
-            EXPORT "${LIBRARY_NAME_0}Targets"
-            FILE "${CMAKE_CURRENT_BINARY_DIR}/${LIBRARY_NAME_0}Targets.cmake"
+            EXPORT "${lib}Targets"
+            FILE "${CMAKE_CURRENT_BINARY_DIR}/${lib}Targets.cmake"
     )
 endforeach ()

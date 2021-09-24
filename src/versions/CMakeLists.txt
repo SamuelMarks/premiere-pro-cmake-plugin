@@ -43,7 +43,12 @@ set_target_properties(
 )
 
 set(_export_file "${CMAKE_CURRENT_SOURCE_DIR}/${LIBRARY_NAME}_export.h")
-# generate_export_header("${LIBRARY_NAME}" EXPORT_FILE_NAME "${_export_file}")
+generate_export_header("${LIBRARY_NAME}" EXPORT_FILE_NAME "${_export_file}")
+target_compile_definitions(
+        "${LIBRARY_NAME}"
+        PUBLIC
+        $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,STATIC_LIBRARY>:"${LIBRARY_NAME}"_STATIC_DEFINE=1>
+)
 
 # tests
 include(CTest)

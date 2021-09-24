@@ -34,7 +34,7 @@ typedef wchar_t	prUTF16Char;
 
 #endif
 
-extern COMMON_EXPORT prUTF16Char * to_wchar(const char*);
+extern COMMON_EXPORT const prUTF16Char * to_wchar(const char*);
 extern COMMON_EXPORT void set_error_suite_ptr(PrSDKErrorSuite3 *);
 extern COMMON_EXPORT void cleanup_error_suite_ptr();
 
