@@ -14,19 +14,13 @@
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
 
-#if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
-static const wchar_t* PROJECT_NAME_W = WIDEN(PROJECT_NAME);
-#elif defined(__APPLE__) && defined(__MACH__)
-static const prUTF16Char* PROJECT_NAME_W = to_wchar(PROJECT_NAME);
+static const prUTF16Char* PROJECT_NAME_W =
+#if defined(__APPLE__) && defined(__MACH__)
+    to_wchar
+#elif defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
+    WIDEN
 #endif
-
-static prUTF16Char* PROJECT_NAME_UTF16 =
-#ifdef	__cplusplus
-        const_cast<prUTF16Char *>
-#else
-        (prUTF16Char *)
-#endif
-                (PROJECT_NAME_W);
+        (PROJECT_NAME);
 
 #ifdef PLUGIN_MODE
 
@@ -58,7 +52,7 @@ int log_info(const char *message) {
     prUTF16Char *w_msg = to_wchar(message);
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
                                           w_msg,
-                                          PROJECT_NAME_UTF16
+                                          PROJECT_NAME_W
     );
     // free(w_msg);
 
@@ -76,7 +70,7 @@ int log_info_w(const prUTF16Char *message) {
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
                                           const_cast<prUTF16Char *>(message),
-                                          PROJECT_NAME_UTF16
+                                          PROJECT_NAME_W
     );
 #else
     printf("%ls\n", message);
@@ -93,7 +87,7 @@ int log_warn(const char *message) {
     prUTF16Char *w_msg = to_wchar(message);
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeWarning,
                                           w_msg,
-                                          PROJECT_NAME_UTF16
+                                          PROJECT_NAME_W
     );
     free(w_msg);
 #else
@@ -110,7 +104,7 @@ int log_warn_w(const prUTF16Char *message) {
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeWarning,
                                           const_cast<prUTF16Char *>(message),
-                                          PROJECT_NAME_UTF16
+                                          PROJECT_NAME_W
     );
 #else
     fprintf(stderr, "%ls\n", message);
@@ -127,7 +121,7 @@ int log_error(const char *message) {
     prUTF16Char *w_msg = to_wchar(message);
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeError,
                                           w_msg,
-                                          PROJECT_NAME_UTF16
+                                          PROJECT_NAME_W
     );
     free(w_msg);
 #else
@@ -144,7 +138,7 @@ int log_error_w(const prUTF16Char *message) {
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeError,
                                           const_cast<prUTF16Char *>(message),
-                                          PROJECT_NAME_UTF16
+                                          PROJECT_NAME_W
     );
 #else
     fprintf(stderr, "%ls\n", message);
@@ -152,6 +146,23 @@ int log_error_w(const prUTF16Char *message) {
     return EXIT_SUCCESS;
 }
 
+const prUTF16Char* to_wchar(const char* message) {
+    if (!message) return NULL;
+
+    size_t len = strlen(message);
+    int bufsize = (len + 1) * 2;
+    char* buf = malloc(bufsize);
+
+    int little_endian = 1;
+    little_endian = ((char*)&little_endian)[0];
+    memset(buf, 0, bufsize);
+    for (size_t i = 0; i < len; i++)
+        buf[i * 2 + little_endian ? 0 : 1] = message[i];
+
+    return (prUTF16Char*)buf;
+}
+
+/*
 // TODO: Remove magic numbers
 
 void copy2ConvertStringLiteralIntoUTF16(const wchar_t* inputString, prUTF16Char* destination)
@@ -200,3 +211,4 @@ const prUTF16Char * to_wchar(const char* message) {
     return w_str;
 #endif
 }
+*/
