@@ -1,0 +1,43 @@
+# This build is flakey due to memory requirements for 'google-cloud-cpp' build
+# Compress the vcpkg dir created from this—or elsewhere—into the root dir, and use
+# `ADD linux_vcpkg.tar.gz /vcpkg` as per 'Dockerfile'
+
+FROM debian:stable-slim as build
+
+LABEL description="Build container"
+
+RUN apt-get update -qq && apt-get install -y  \
+    autoconf \
+    binutils \
+    build-essential \
+    curl \
+    gcc \
+    g++ \
+    git \
+    libstdc++6 \
+    libtool \
+    make \
+    ninja-build \
+    pkg-config \
+    tar \
+    unzip \
+    zip \
+    && curl 'https://github.com/Kitware/CMake/releases/download/v3.21.2/cmake-3.21.2-linux-x86_64.sh' -Lo '/tmp/cmake.sh' \
+    && chmod +x '/tmp/cmake.sh' && '/tmp/cmake.sh' --prefix='/usr/local' --skip-license \
+    && mkdir '/vcpkg' \
+    && git clone --depth=1 'https://github.com/Microsoft/vcpkg.git' '/vcpkg' \
+    && '/vcpkg/bootstrap-vcpkg.sh' -useSystemBinaries \
+    && VCPKG_FORCE_SYSTEM_BINARIES=1 '/vcpkg/vcpkg' install \
+    inih \
+    tinyfiledialogs \
+    parson \
+    civetweb \
+    curl \
+    grpc \
+    abseil \
+    protobuf \
+    crc32c \
+    nlohmann-json
+
+RUN VCPKG_FORCE_SYSTEM_BINARIES=1 '/vcpkg/vcpkg' install \
+    google-cloud-cpp
