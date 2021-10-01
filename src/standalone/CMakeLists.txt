@@ -34,11 +34,14 @@ if (BUILD_TESTING)
 
     # is the output correct?
     add_test(NAME Output COMMAND "${PROJ_NAME}")
-    set_tests_properties(
-            Output
-            PROPERTIES PASS_REGULAR_EXPRESSION
-            "version:*;get_hash():*;ZLIB_VERSION:*;OPENSSL_VERSION_TEXT:*"
-    )
+    foreach(match "PROJECT_NAME_W: +${PROJECT_NAME}" "version:*"
+                  "get_hash():*" "ZLIB_VERSION:*" "OPENSSL_VERSION_TEXT:*")
+        set_tests_properties(
+                Output
+                PROPERTIES PASS_REGULAR_EXPRESSION
+                "${match}"
+        )
+    endforeach()
 endif (BUILD_TESTING)
 
 ###########

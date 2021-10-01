@@ -32,6 +32,8 @@ typedef unsigned short int prUTF16Char;
 typedef wchar_t	prUTF16Char;
 #endif
 
+extern const prUTF16Char* PROJECT_NAME_W;
+
 #endif
 
 extern COMMON_EXPORT const prUTF16Char * to_wchar(const char*);

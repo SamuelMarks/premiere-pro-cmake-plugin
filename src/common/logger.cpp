@@ -14,13 +14,13 @@
 #define WIDEN2(x) L ## x
 #define WIDEN(x) WIDEN2(x)
 
-static const prUTF16Char* PROJECT_NAME_W =
+const prUTF16Char* PROJECT_NAME_W =
 #if defined(__APPLE__) && defined(__MACH__)
-    to_wchar
+        (const prUTF16Char*)PROJECT_NAME
 #elif defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
-    WIDEN
+    WIDEN(PROJECT_NAME)
 #endif
-        (PROJECT_NAME);
+        ;
 
 #ifdef PLUGIN_MODE
 
@@ -151,7 +151,7 @@ const prUTF16Char* to_wchar(const char* message) {
 
     size_t len = strlen(message);
     int bufsize = (len + 1) * 2;
-    char* buf = malloc(bufsize);
+    char* buf = (char *) malloc(bufsize);
 
     int little_endian = 1;
     little_endian = ((char*)&little_endian)[0];

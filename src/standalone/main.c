@@ -4,6 +4,7 @@
 #include <wchar.h>
 
 #include <versions.h>
+#include <logger.h>
 #include "configure.h"
 
 #if defined(_WIN32) || defined(__WIN32__) || defined(WIN32)
@@ -34,9 +35,12 @@ int main(int argc, char *argv[]) {
         }
 
         printf("%s version: %4s\n"
-               "\nget_hash(): %20d\n", basename,
+               "\nget_hash(): %20d"
+               "\nPROJECT_NAME_W: %8s\n",
+               basename,
                PROJECT_VERSION,
-               get_hash());
+               get_hash(),
+               PROJECT_NAME_W);
     }
 
     {
