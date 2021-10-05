@@ -73,7 +73,7 @@ int log_info_w(const prUTF16Char *message) {
                                           PROJECT_NAME_W
     );
 #else
-    printf("%ls\n", message);
+    printf("%"UTF16_FMT"\n", *message);
 #endif
     return EXIT_SUCCESS;
 }
@@ -107,7 +107,7 @@ int log_warn_w(const prUTF16Char *message) {
                                           PROJECT_NAME_W
     );
 #else
-    fprintf(stderr, "%ls\n", message);
+    fprintf(stderr, "%"UTF16_FMT"\n", *message);
 #endif
     return EXIT_SUCCESS;
 }
@@ -141,7 +141,7 @@ int log_error_w(const prUTF16Char *message) {
                                           PROJECT_NAME_W
     );
 #else
-    fprintf(stderr, "%ls\n", message);
+    fprintf(stderr, "%"UTF16_FMT"\n", *message);
 #endif
     return EXIT_SUCCESS;
 }
@@ -156,8 +156,11 @@ const prUTF16Char* to_wchar(const char* message) {
     int little_endian = 1;
     little_endian = ((char*)&little_endian)[0];
     memset(buf, 0, bufsize);
-    for (size_t i = 0; i < len; i++)
-        buf[i * 2 + little_endian ? 0 : 1] = message[i];
+    {
+        size_t i;
+        for (i = 0; i < len; i++)
+            buf[i * 2 + little_endian ? 0 : 1] = message[i];
+    }
 
     return (prUTF16Char*)buf;
 }

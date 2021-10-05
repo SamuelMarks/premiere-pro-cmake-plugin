@@ -23,6 +23,19 @@
 
 int main(int argc, char *argv[]) {
     {
+        switch (argc) {
+            case 1:
+                break;
+            case 2:
+                if (strcmp(argv[1], "--version") == 0) {
+                    printf("%s %s", PROJECT_NAME, PROJECT_VERSION);
+                    return EXIT_SUCCESS;
+                }
+            default:
+                fprintf(stderr, "--version or no arg only support for %s\n", argv[0]);
+                return EXIT_FAILURE;
+        }
+
         char basename[MAX_FNAME] = {0};
         {
             char *token, *rest = NULL;
@@ -35,12 +48,12 @@ int main(int argc, char *argv[]) {
         }
 
         printf("%s version: %4s\n"
-               "\nget_hash(): %20d"
-               "\nPROJECT_NAME_W: %8s\n",
+               "\nget_hash(): %20ld"
+               "\nPROJECT_NAME_W: %8"UTF16_FMT"\n",
                basename,
                PROJECT_VERSION,
                get_hash(),
-               PROJECT_NAME_W);
+               *PROJECT_NAME_W);
     }
 
     {

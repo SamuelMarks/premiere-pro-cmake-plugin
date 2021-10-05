@@ -68,11 +68,18 @@ if (NOT DEFINED TARGET_ARCH)
     set(TARGET_ARCH ${CMAKE_HOST_SYSTEM_PROCESSOR})
 endif ()
 
-# Instead of `BUILD_SHARED_LIBS`
 if (PLUGIN_MODE)
     #set(LIBRARY_TYPE_FLAG "SHARED")
 else ()
     set(LIBRARY_TYPE_FLAG "STATIC")
+endif ()
+
+if (DEFINED BUILD_SHARED_LIBS)
+    # pass
+elseif (LIBRARY_TYPE_FLAG STREQUAL "STATIC")
+    set(BUILD_SHARED_LIBS "OFF")
+else ()
+    set(BUILD_SHARED_LIBS "ON")
 endif ()
 
 ################################

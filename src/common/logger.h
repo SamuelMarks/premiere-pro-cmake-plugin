@@ -28,8 +28,11 @@ typedef void* PrSDKErrorSuite3;
 
 #if defined(__APPLE__) && defined(__MACH__)
 typedef unsigned short int prUTF16Char;
+#define UTF16_FMT "hu"
 #else
 typedef wchar_t	prUTF16Char;
+#define WCHAR_UTF16 1
+#define UTF16_FMT "ls"
 #endif
 
 extern const prUTF16Char* PROJECT_NAME_W;
