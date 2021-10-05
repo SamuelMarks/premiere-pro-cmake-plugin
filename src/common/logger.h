@@ -33,11 +33,11 @@ typedef unsigned short int prUTF16Char;
 typedef wchar_t	prUTF16Char;
 #define WCHAR_UTF16 1
 #define UTF16_FMT "ls"
-#endif
+#endif /* OS check */
 
-extern const prUTF16Char* PROJECT_NAME_W;
+#endif /* PLUGIN_MODE or STANDALONE_MODE */
 
-#endif
+extern const COMMON_EXPORT prUTF16Char* PROJECT_NAME_W;
 
 extern COMMON_EXPORT const prUTF16Char * to_wchar(const char*);
 extern COMMON_EXPORT void set_error_suite_ptr(PrSDKErrorSuite3 *);

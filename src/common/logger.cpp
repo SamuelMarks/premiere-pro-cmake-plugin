@@ -32,6 +32,9 @@ static PrSDKErrorSuite3				*sErrorSuitePtr = NULL;
 void set_error_suite_ptr(PrSDKErrorSuite3 *error_suite_ptr) {
 #ifdef PLUGIN_MODE
     sErrorSuitePtr = error_suite_ptr;
+#else
+    if (error_suite_ptr != NULL)
+        fputs("error_suite_ptr is a stub, don't give it a non-NULL arg", stderr);
 #endif
 }
 
