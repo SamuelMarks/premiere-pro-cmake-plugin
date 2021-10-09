@@ -150,8 +150,8 @@ prMALError ecExportTimeline(
                 log_info_w(reinterpret_cast<const prUTF16Char *>(VERSIONS[i][1]));
 
             sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
-                                                  to_wchar("ExportController.cpp"),
-                                                  to_wchar("ExportController.cpp")
+                                                  const_cast<prUTF16Char *>(to_wchar("ExportController.cpp")),
+                                                  const_cast<prUTF16Char *>(to_wchar("ExportController.cpp"))
             );
 
             result = eExportControllerErrorReportedInSuite;

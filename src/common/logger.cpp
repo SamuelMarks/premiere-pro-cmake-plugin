@@ -52,13 +52,12 @@ int log_info(const char *message) {
     if (sErrorSuitePtr == NULL) return EXIT_FAILURE;
 
     fputs(message, stderr);
-    prUTF16Char *w_msg = to_wchar(message);
+    prUTF16Char *w_msg = const_cast<prUTF16Char *>(to_wchar(message));
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
                                           w_msg,
-                                          PROJECT_NAME_W
+                                          const_cast<prUTF16Char *>(PROJECT_NAME_W)
     );
-    // free(w_msg);
-
+    free(w_msg);
 #else
     puts(message);
 #endif
@@ -73,7 +72,7 @@ int log_info_w(const prUTF16Char *message) {
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeInformational,
                                           const_cast<prUTF16Char *>(message),
-                                          PROJECT_NAME_W
+                                          const_cast<prUTF16Char *>(PROJECT_NAME_W)
     );
 #else
     printf("%"UTF16_FMT"\n", *message);
@@ -87,10 +86,10 @@ int log_warn(const char *message) {
 #ifdef PLUGIN_MODE
     if (sErrorSuitePtr == NULL) return EXIT_FAILURE;
 
-    prUTF16Char *w_msg = to_wchar(message);
+    prUTF16Char *w_msg = const_cast<prUTF16Char *>(to_wchar(message));
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeWarning,
-                                          w_msg,
-                                          PROJECT_NAME_W
+                                          const_cast<prUTF16Char *>(w_msg),
+                                          const_cast<prUTF16Char *>(PROJECT_NAME_W)
     );
     free(w_msg);
 #else
@@ -107,7 +106,7 @@ int log_warn_w(const prUTF16Char *message) {
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeWarning,
                                           const_cast<prUTF16Char *>(message),
-                                          PROJECT_NAME_W
+                                          const_cast<prUTF16Char *>(PROJECT_NAME_W)
     );
 #else
     fprintf(stderr, "%"UTF16_FMT"\n", *message);
@@ -121,10 +120,10 @@ int log_error(const char *message) {
 #ifdef PLUGIN_MODE
     if (sErrorSuitePtr == NULL) return EXIT_FAILURE;
 
-    prUTF16Char *w_msg = to_wchar(message);
+    prUTF16Char *w_msg = const_cast<prUTF16Char *>(to_wchar(message));
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeError,
                                           w_msg,
-                                          PROJECT_NAME_W
+                                          const_cast<prUTF16Char *>(PROJECT_NAME_W)
     );
     free(w_msg);
 #else
@@ -141,7 +140,7 @@ int log_error_w(const prUTF16Char *message) {
 
     sErrorSuitePtr->SetEventStringUnicode(PrSDKErrorSuite3::kEventTypeError,
                                           const_cast<prUTF16Char *>(message),
-                                          PROJECT_NAME_W
+                                          const_cast<prUTF16Char *>(PROJECT_NAME_W)
     );
 #else
     fprintf(stderr, "%"UTF16_FMT"\n", *message);
@@ -153,7 +152,7 @@ const prUTF16Char* to_wchar(const char* message) {
     if (!message) return NULL;
 
     size_t len = strlen(message);
-    int bufsize = (len + 1) * 2;
+    size_t bufsize = (len + 1) * 2;
     char* buf = (char *) malloc(bufsize);
 
     int little_endian = 1;

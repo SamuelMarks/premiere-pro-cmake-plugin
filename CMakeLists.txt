@@ -6,7 +6,7 @@ if (NOT DEFINED PLUGIN_MODE AND NOT DEFINED STANDALONE_MODE)
 endif ()
 
 if (PLUGIN_MODE)
-    set(LANGUAGES "C CXX")
+    project(pp VERSION 0.0.0 LANGUAGES C CXX)
     if (MSVC)
         set(CMAKE_CXX_STANDARD 11)
     else ()
@@ -14,12 +14,11 @@ if (PLUGIN_MODE)
     endif ()
     set(COMPILER_INTERFACE "cxx_std_${CMAKE_CXX_STANDARD}")
 else ()
-    set("LANGUAGES" "C")
+    project(pp VERSION 0.0.0 LANGUAGES C)
     set(CMAKE_C_STANDARD 90)
     set(COMPILER_INTERFACE "c_std_${CMAKE_C_STANDARD}")
 endif ()
 
-project(pp VERSION 0.0.0 LANGUAGES "${LANGUAGES}")
 string(TOLOWER "${PROJECT_NAME}" PROJECT_LOWER_NAME)
 
 ##################
